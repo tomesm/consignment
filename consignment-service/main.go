@@ -7,26 +7,28 @@ import (
 
 	micro "github.com/micro/go-micro"
 	pb "github.com/tomesm/consignment/consignment-service/proto/consignment"
+	vesselProto "github.com/tomesm/consignment/vessel-service/proto/vessel"
 	"golang.org/x/net/context"
 )
 
-type IRepository interface {
+// Repository - repo
+type Repository interface {
 	Create(*pb.Consignment) (*pb.Consignment, error)
 	GetAll() []*pb.Consignment
 }
 
-// Repository - Dummy repository, this simulates the use of a datastore
+// ConsignmentRepository - Dummy repository, this simulates the use of a datastore
 // of some kind. We'll replace this with a real implementation later on.
-type Repository struct {
+type ConsignmentRepository struct {
 	consignments []*pb.Consignment
 }
 
-func (repo *Repository) Create(consignment *pb.Consignment) (*pb.Consignment, error) {
+func (repo *ConsignmentRepository) Create(consignment *pb.Consignment) (*pb.Consignment, error) {
 	repo.consignments = append(repo.consignments, consignment)
 	return consignment, nil
 }
 
-func (repo *Repository) GetAll() []*pb.Consignment {
+func (repo *ConsignmentRepository) GetAll() []*pb.Consignment {
 	return repo.consignments
 }
 
@@ -35,7 +37,8 @@ func (repo *Repository) GetAll() []*pb.Consignment {
 // in the generated code itself for the exact method signatures etc
 // to give you a better idea.
 type service struct {
-	repo IRepository
+	repo         Repository
+	vesselClient vesselProto.VesselServiceClient
 }
 
 // CreateConsignment - we created just one method on our service,
